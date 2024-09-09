@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -36,22 +38,21 @@ def backward_propagation(X, Y, A1, A2, W1, W2, b1, b2, learning_rate):
     W2 -= learning_rate * dW2
     b2 -= learning_rate * db2
 
-def train(X, Y, learning_rate, epochs):
-    input_size = X.shape[1]
+def train(X_train, Y_train, learning_rate, epochs):
+    input_size = X_train.shape[1]
     hidden_size = 10 
     output_size = 1
     W1, b1, W2, b2 = initialize_weights(input_size, hidden_size, output_size)
     for epoch in range(epochs):
-        A1, A2 = forward_propagation(X, W1, b1, W2, b2)
-        backward_propagation(X, Y, A1, A2, W1, W2, b1, b2, learning_rate)
+        A1, A2 = forward_propagation(X_train, W1, b1, W2, b2)
+        backward_propagation(X_train, Y_train, A1, A2, W1, W2, b1, b2, learning_rate)
         if epoch % 100 == 0:
-            print(f"Epoch {epoch}, loss: {np.mean(np.square(A2 - Y))}")
+            print(f"Epoch {epoch}, loss: {np.mean(np.square(A2 - Y_train))}")
     return W1, b1, W2, b2
 
 df = pd.read_csv('WHR2024.csv')
 
 df = df.replace({',': '.'}, regex=True)
-
 df = df.dropna()
 
 print(df.columns)
@@ -62,13 +63,37 @@ X = X.astype(float)
 Y = df['Ladder score'].values.reshape(-1, 1)
 Y = Y.astype(float)
 
-W1, b1, W2, b2 = train(X, Y, 0.01, 10000)
+# Dividir os dados em conjuntos de treinamento e teste
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.5, random_state=42)
 
-new_input = np.array([[1.844, 1.572, 0.695, 0.859, 0.142, 0.546, 2.082],
-        [1.908, 1.520, 0.699, 0.823, 0.204, 0.0, 1.881],
-        [1.881, 1.617, 0.718, 0.819, 0.258, 0.182, 2.050],
-        [1.878, 1.501, 0.724, 0.838, 0.221, 0.524, 1.658],
-        [0.629, 0.001, 0.272, 0.0, 0.101, 0.108, 0.677]])
-A1, prediction = forward_propagation(new_input, W1, b1, W2, b2)
-print("Predição:", prediction)
+# Treinar a MLP
+W1, b1, W2, b2 = train(X_train, Y_train, 0.01, 10000)
 
+# Avaliar a MLP no conjunto de teste
+_, Y_pred = forward_propagation(X_test, W1, b1, W2, b2)
+loss = np.mean(np.square(Y_pred - Y_test))
+print(f"Loss no conjunto de teste: {loss}")
+
+def mean_absolute_error(Y_test, Y_pred):
+    return np.mean(np.abs(Y_test - Y_pred))
+
+def mean_squared_error(Y_test, Y_pred):
+    return np.mean(np.square(Y_test - Y_pred))
+
+mae = mean_absolute_error(Y_test, Y_pred)
+mse = mean_squared_error(Y_test, Y_pred)
+
+print(f"MAE: {mae}")
+print(f"MSE: {mse}")
+
+
+
+# Plotar previsões vs valores reais
+plt.figure(figsize=(10, 6))
+plt.plot(Y_test, label='Valores reais')
+plt.plot(Y_pred, label='Previsões')
+plt.xlabel('Índice')
+plt.ylabel('Valor')
+plt.title('Previsões vs Valores reais')
+plt.legend()
+plt.show()
