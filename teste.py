@@ -87,8 +87,6 @@ print(f"MAE: {mae}")
 print(f"MSE: {mse}")
 
 
-
-# Plotar previsões vs valores reais
 plt.figure(figsize=(10, 6))
 plt.plot(Y_test, label='Valores reais')
 plt.plot(Y_pred, label='Previsões')
