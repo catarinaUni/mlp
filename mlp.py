@@ -63,13 +63,10 @@ X = X.astype(float)
 Y = df['Ladder score'].values.reshape(-1, 1)
 Y = Y.astype(float)
 
-# Dividir os dados em conjuntos de treinamento e teste
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.5, random_state=42)
 
-# Treinar a MLP
 W1, b1, W2, b2 = train(X_train, Y_train, 0.01, 10000)
 
-# Avaliar a MLP no conjunto de teste
 _, Y_pred = forward_propagation(X_test, W1, b1, W2, b2)
 loss = np.mean(np.square(Y_pred - Y_test))
 print(f"Loss no conjunto de teste: {loss}")
@@ -87,8 +84,6 @@ print(f"MAE: {mae}")
 print(f"MSE: {mse}")
 
 
-
-# Plotar previsões vs valores reais
 plt.figure(figsize=(10, 6))
 plt.plot(Y_test, label='Valores reais')
 plt.plot(Y_pred, label='Previsões')
