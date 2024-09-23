@@ -53,6 +53,9 @@ def mean_absolute_error(Y_test, Y_pred):
 def mean_squared_error(Y_test, Y_pred):
     return np.mean(np.square(Y_test - Y_pred))
 
+def root_mean_squared_error(Y_test, Y_pred):
+    return np.sqrt(np.mean(np.square(Y_test - Y_pred)))
+
 def split_data(X, Y, n_splits):
     fold_size = len(X) // n_splits
     indices = np.arange(len(X))
@@ -71,6 +74,7 @@ def cross_validate(X, Y, learning_rate, epochs, n_splits=5):
     losses = []
     maes = []
     mses = []
+    rmses = []
     
     for i, (train_index, test_index) in enumerate(folds):
         X_train, X_test = X[train_index], X[test_index]
@@ -82,14 +86,17 @@ def cross_validate(X, Y, learning_rate, epochs, n_splits=5):
         loss = np.mean(np.square(Y_pred - Y_test))
         mae = mean_absolute_error(Y_test, Y_pred)
         mse = mean_squared_error(Y_test, Y_pred)
+        rmse =  root_mean_squared_error(Y_test, Y_pred)
         
         losses.append(loss)
         maes.append(mae)
         mses.append(mse)
+        rmses.append(rmse)
         
         print(f"Loss na dobra {i + 1}: {loss}")
         print(f"MAE na dobra {i + 1}: {mae}")
         print(f"MSE na dobra {i + 1}: {mse}")
+        print(f"RMSE na dobra {i + 1}: {rmse}")
     
     mean_loss = np.mean(losses)
     std_loss = np.std(losses)
@@ -97,10 +104,13 @@ def cross_validate(X, Y, learning_rate, epochs, n_splits=5):
     std_mae = np.std(maes)
     mean_mse = np.mean(mses)
     std_mse = np.std(mses)
+    mean_rmse = np.mean(rmses)
+    std_rmse =  np.std(rmses)
 
     print(f"\nPerda média: {mean_loss} ± {std_loss}")
     print(f"MAE médio: {mean_mae} ± {std_mae}")
     print(f"MSE médio: {mean_mse} ± {std_mse}")
+    print(f"RMSE médio:  {mean_rmse} ± {std_rmse}")
     
     return losses, maes, mses
 
@@ -119,10 +129,12 @@ _, Y_pred = forward_propagation(X, W1, b1, W2, b2)
 loss = np.mean(np.square(Y_pred - Y))
 mae = mean_absolute_error(Y, Y_pred)
 mse = mean_squared_error(Y, Y_pred)
+rmse =   root_mean_squared_error(Y, Y_pred)
 
 print(f"\nLoss no conjunto completo: {loss}")
 print(f"MAE: {mae}")
 print(f"MSE: {mse}")
+print(f"RMSE: {rmse}")
 
 plt.figure(figsize=(12, 6))
 
